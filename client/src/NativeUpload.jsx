@@ -3,18 +3,22 @@ import { useState, useRef, useEffect } from 'react'
 export default function NativeUpload() {
     const [ selectedPhoto, setSelectedPhoto ] = useState( null );
     const [ photoUploadStatus, setPhotoUploadStatus ] = useState( "idle" );
-    const fileInputRef = useRef( null );
     const previewRef = useRef( null );
 
     function handlePhotoSelect( event ) {
+        // reset photo upload status
         setPhotoUploadStatus( "idle" );
 
+        // reset image preview
         if( previewRef.current ) {
             URL.revokeObjectURL( previewRef.current );
             previewRef.current = null;
         }
 
+        // set the selected photo in state
         setSelectedPhoto( event.target.files[0] );
+
+        // store the preview
         previewRef.current = URL.createObjectURL(event.target.files[0]);
     }
 
@@ -25,12 +29,15 @@ export default function NativeUpload() {
 
         try {
             setPhotoUploadStatus( "loading" );
+
             await fetch("http://localhost:3000/upload", {
               method: "POST",
               body: formData,
             });
             
-            setTimeout( () => setPhotoUploadStatus( "success" ), 3000);
+            // dummy timeout to extend the duration of this operation
+            // and properly show the loading indicator. 
+            setTimeout( () => setPhotoUploadStatus( "success" ), 1000);
         } catch (error) {
             console.error("Error:", error);
         }
@@ -52,7 +59,7 @@ export default function NativeUpload() {
         <div className="container mt-5">
 
             {/* FILE INPUT */}
-            <input type="file" name="photo" onChange={handlePhotoSelect} ref={fileInputRef} className='form-control' />
+            <input type="file" name="photo" onChange={handlePhotoSelect} className='form-control' />
             <button type="button" onClick={uploadPhoto} className="btn btn-primary mt-2" disabled={isUploadButtonDisabled}>{ photoUploadStatus == "loading" ? "Uploading..." : "Upload"}</button>
 
             {/* FILE PREVIEW & UPLOAD STATUS */}

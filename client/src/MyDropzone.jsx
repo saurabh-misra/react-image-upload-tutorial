@@ -4,12 +4,7 @@ import Dropzone from 'react-dropzone'
 export default function MyDropzone({ onUploadPhoto, uploadStatus, resetPhotoUploadStatus }) {
     const [ selectedPhoto, setSelectedPhoto ] = useState( null );
     const [ uploadInvalid, setUploadInvalid ] = useState( false );
-    // const [ photoUploadStatus, setPhotoUploadStatus ] = useState( "idle" );
     const previewRef = useRef( null );
-
-    const isUploading = uploadStatus == "loading";
-    const isUploaded = uploadStatus == "success";
-    const isUploadButtonDisabled = uploadStatus == "loading" || !selectedPhoto;
 
     // Accept only JPEG and PNG images
     const accept = {
@@ -26,12 +21,14 @@ export default function MyDropzone({ onUploadPhoto, uploadStatus, resetPhotoUplo
     function handleDrop( acceptedFiles, fileRejections ) {
         resetPhotoUploadStatus(); 
 
+        // reset file preview
         if( previewRef.current ) {
             URL.revokeObjectURL( previewRef.current );
             previewRef.current = null;
         }
         
         if ( acceptedFiles.length ) {
+            // If photo is valid, save it in state and also save a preview in `previewRef`. 
             setSelectedPhoto(acceptedFiles[0]);
             setUploadInvalid( false );
             previewRef.current = URL.createObjectURL(acceptedFiles[0]);
@@ -54,8 +51,12 @@ export default function MyDropzone({ onUploadPhoto, uploadStatus, resetPhotoUplo
         onUploadPhoto( selectedPhoto );
     }
 
+    const isUploading = uploadStatus == "loading";
+    const isUploaded = uploadStatus == "success";
+    const isUploadButtonDisabled = uploadStatus == "loading" || !selectedPhoto;
+
     return (
-        <Dropzone onDrop={handleDrop} accept={accept} maxFiles="1" >
+        <Dropzone onDrop={handleDrop} accept={accept} maxFiles="1">
             {({ getRootProps, getInputProps }) => (
                 <div className="mt-4">
                     
